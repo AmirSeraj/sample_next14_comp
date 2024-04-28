@@ -1,0 +1,30 @@
+https://www.linkedin.com/pulse/add-custom-404-page-found-nextjs-14-app-directory-ali-mirzaei-hyh1e/
+
+app ---
+       [locale]
+               [...not_found] --> page.tsx
+               global.css
+               layout.tsx
+               not-found.tsx
+               page.tsx
+
+
+So here we are : 
+For adding a new custom 404 not found page to your nextjs 14 projects you need to do 2 things.
+Crate a not-found.tsx component and put it in your root project under [locale] this will be your custom 404 not found page 
+Crate a page called [...not_found] in the root project under [locale] and add notFound() from next/navigation to it.
+
+
+in not_found.tsx add your custom 404 page
+
+// not-found.tsx
+export default function NotFound() {
+  return <div>404 not found</div>;
+} 
+
+// app/[locale]/[...not_found]/page.tsx
+import { notFound } from 'next/navigation';
+
+export default function NotFoundCatchAll() {
+  notFound();
+} 

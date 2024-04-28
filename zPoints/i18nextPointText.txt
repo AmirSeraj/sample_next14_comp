@@ -14,7 +14,6 @@ const i18nConfig = {
   defaultLocale: "en",
   prefixdefault: true, ///if you want to add en at url.
 };
-
 module.exports = i18nConfig;
 
 ///this is some thing like this ==> '/en/about-us' , '/fa/about-us'

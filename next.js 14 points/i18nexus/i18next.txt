@@ -1,0 +1,316 @@
+A complete guide for setting up react-i18next with the App Router
+https://www.youtube.com/watch?v=J8tnD2BWY28&t=198s
+https://i18nexus.com/tutorials/nextjs/react-i18next
+App router i18next (internationalization)
+///1-installation:
+npm i i18next react-i18next i18next-resources-to-backend next-i18n-router
+
+//2-file creation:
+//at the root of your project create a file called (i18nConfig.js)
+
+//i18nConfig.js:
+const i18nConfig = {
+  locales: ["en", "fa"],
+  defaultLocale: "en",
+  prefixdefault: true, ///if you want to add en at url.
+};
+module.exports = i18nConfig;
+
+///this is some thing like this ==> '/en/about-us' , '/fa/about-us'
+
+//3. Set up a dynamic segment: create a folder called locale and put all pages in this folder: [locale]
+
+in app directory:
+[locale]: ---> (auth), about, globals.css, layout.jsx, loading.jsx, not-found.jsx, page.jsx
+
+---app
+------[locale]
+--------------layout.js
+-----------------------page.js
+
+4. create middleware
+Finally, at the root of your project add a middleware.js file.
+Note: If you are using a /src directory, it should be inside of /src.
+----start middleware----
+import { i18nRouter } from 'next-i18n-router';
+import i18nConfig from './i18nConfig';
+
+export function middleware(request) {
+  return i18nRouter(request, i18nConfig);
+}
+
+// applies this middleware only to files in the app directory
+export const config = {
+  matcher: '/((?!api|static|.*\\..*|_next).*)'
+};
+-----end----
+5. Initializing project
+//5. go to: https://app.i18nexus.com/ 
+//create a project, watch video from: 9:00 ~ 14:00
+
+//for exporting click on Export copy Project Api Key and paste it in .env file I18NEXUS_API_KEY 
+//and then run this command: (npm install i18nexus-cli -g) and then run: (i18nexus pull) ==> this create 
+//a folder named locales in main root.
+
+*add this in .env: I18NEXUS_API_KEY="my_api_key"
+*run: npm install i18nexus-cli -g
+*run: i18nexus pull
+----------------------------------------------------------------------------------
+note:if you encountered to this error:
+i18nexus : File C:\Users\Amir Sera
+j\AppData\Roaming\npm\i18nexus.ps1
+ cannot be loaded because running
+scripts is disabled on this
+system. For more information, see
+about_Execution_Policies at https:
+/go.microsoft.com/fwlink/?LinkID=1
+35170.
+At line:1 char:1
++ i18nexus pull
++ ~~~~~~~~
+    + CategoryInfo          : Sec
+   urityError: (:) [], PSSecurit
+  yException
+    + FullyQualifiedErrorId : Una
+   uthorizedAccess
+
+refer to this site: https://stackoverflow.com/questions/58032631/why-powershell-does-not-run-angular-commands
+
+1.Open Windows PowerShell
+2.execute this command
+set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+------------------------------------------------------------------------------------------
+
+//6. in package.json:
+"scripts": {
+  "dev": "i18nexus pull && next dev",
+  "build": "i18nexus pull && next build",
+  "start": "i18nexus pull && next start",
+  "lint": "next lint"
+},
+
+//7. run: npm i i18nexus-cli --save-dev
+
+8.Loading and Rendering Translations
+
+With the App Router, we need to support rendering translations in both Server Components and Client Components.
+
+Server Components with react-i18next:
+I’m going to create a file in my /app directory called i18n.js that contains a function to generate an i18next instance:
+
+(for server components:)
+in app/i18n.js:
+
+import { createInstance } from 'i18next';
+import { initReactI18next } from 'react-i18next/initReactI18next';
+import resourcesToBackend from 'i18next-resources-to-backend';
+import i18nConfig from '@/i18nConfig';
+
+export default async function initTranslations(
+  locale,
+  namespaces,
+  i18nInstance,
+  resources
+) {
+  i18nInstance = i18nInstance || createInstance();
+
+  i18nInstance.use(initReactI18next);
+
+  if (!resources) {
+    i18nInstance.use(
+      resourcesToBackend(
+        (language, namespace) =>
+          import(`@/locales/${language}/${namespace}.json`)
+      )
+    );
+  }
+
+  await i18nInstance.init({
+    lng: locale,
+    resources,
+    fallbackLng: i18nConfig.defaultLocale,
+    supportedLngs: i18nConfig.locales,
+    defaultNS: namespaces[0],
+    fallbackNS: namespaces[0],
+    ns: namespaces,
+    preload: resources ? [] : i18nConfig.locales
+  });
+
+  return {
+    i18n: i18nInstance,
+    resources: i18nInstance.services.resourceStore.data,
+    t: i18nInstance.t
+  };
+}
+
+-------------------------------------------
+
+9.in app/[locale]/page.tsx:
+
+import styles from './page.module.css';
+import ExampleClientComponent from '@/components/ExampleClientComponent';
+import initTranslations from '../i18n';
+
+const namespaces = ['home','common'];
+
+export default async function Home({ params: { locale } }) {
+  const { t } = await initTranslations(locale, namespaces);
+
+  return (
+    <main className={styles.main}>
+      <h1>{t('header')}</h1>
+      <ExampleClientComponent />
+      <Link href="/about-us">{t('common:about_us')}</Link>
+    </main>
+  );
+}
+
+//We are also passing in an array of all of the namespaces required for this page. In our case, we just have the one namespace called “home”.
+
+10. Client Components with react-i18next:
+
+in components/TranslationsProvider.js
+
+'use client';
+import { I18nextProvider } from 'react-i18next';
+import initTranslations from '@/app/i18n';
+import { createInstance } from 'i18next';
+
+export default function TranslationsProvider({
+  children,
+  locale,
+  namespaces,
+  resources
+}) {
+  const i18n = createInstance();
+
+  initTranslations(locale, namespaces, i18n, resources);
+
+  return <I18nextProvider i18n={i18n}>{children}</I18nextProvider>;
+}
+
+We only need to use the provider once per page. Let’s add it to our home page:
+
+11.in app/[locale]/page.js:
+-----------------------------
+import initTranslations from '../i18n';
+import styles from './page.module.css';
+import ExampleClientComponent from '@/components/ExampleClientComponent';
+import TranslationsProvider from '@/components/TranslationsProvider';
+
+const i18nNamespaces = ['home'];
+
+export default async function Home({ params: { locale } }) {
+  const { t, resources } = await initTranslations(locale, i18nNamespaces);
+
+  return (
+    <TranslationsProvider
+      namespaces={i18nNamespaces}
+      locale={locale}
+      resources={resources}>
+      <main className={styles.main}>
+        <h1>{t('header')}</h1>
+        <ExampleClientComponent />
+      </main>
+    </TranslationsProvider>
+  );
+}
+-----------------------------------
+12.in components/ExampleClientComponent.js
+
+'use client';
+
+import { useTranslation } from 'react-i18next';
+
+export default function ExampleClientComponent() {
+  const { t } = useTranslation();
+
+  return <h3>{t('greeting')}</h3>;
+}
+
+13.Changing Languages:
+
+The next-i18n-router does a good job of detecting a visitor’s preferred language, but oftentimes we want to allow our visitors to change the language themselves.
+
+To do this, we will create a dropdown for our user to select their new language. We will take their selected locale and set it as a cookie named "NEXT_LOCALE" that next-i18n-router uses to override the automatic locale detection.
+
+I’m going to create a new component called LanguageChanger:
+-------------------------------------------
+in components/LanguageChanger.js:
+
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import i18nConfig from '@/i18nConfig';
+
+export default function LanguageChanger() {
+  const { i18n } = useTranslation();
+  const currentLocale = i18n.language;
+  const router = useRouter();
+  const currentPathname = usePathname();
+
+  const handleChange = e => {
+    const newLocale = e.target.value;
+
+    // set cookie for next-i18n-router
+    const days = 30;
+    const date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    const expires = date.toUTCString();
+    document.cookie = `NEXT_LOCALE=${newLocale};expires=${expires};path=/`;
+
+    // redirect to the new locale path
+    if (
+      currentLocale === i18nConfig.defaultLocale &&
+      !i18nConfig.prefixDefault
+    ) {
+      router.push('/' + newLocale + currentPathname);
+    } else {
+      router.push(
+        currentPathname.replace(`/${currentLocale}`, `/${newLocale}`)
+      );
+    }
+
+    router.refresh();
+  };
+
+  return (
+    <select onChange={handleChange} value={currentLocale}>
+      <option value="en">English</option>
+      <option value="it">Italian</option>
+      <option value="fr">French</option>
+    </select>
+  );
+}
+
+-------------------------------------------------------
+
+14. Using SSG
+
+Lastly, let’s update our layout.js. We’ll use generateStaticProps so that Next.js statically generates pages for each of our languages. We’ll also make sure to add the current locale to the <html> tag of our app.
+
+import './globals.css';
+import { Inter } from 'next/font/google';
+import i18nConfig from '@/i18nConfig';
+import { dir } from 'i18next';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata = {
+  title: 'Create Next App',
+  description: 'Generated by create next app'
+};
+
+export function generateStaticParams() {
+  return i18nConfig.locales.map(locale => ({ locale }));
+}
+
+export default function RootLayout({ children, params: { locale } }) {
+  return (
+    <html lang={locale} dir={dir(locale)}>
+      <body className={inter.className}>{children}</body>
+    </html>
+  );
+}
