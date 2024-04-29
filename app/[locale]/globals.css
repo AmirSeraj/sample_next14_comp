@@ -11,6 +11,35 @@ body {
   padding: 0;
 }
 
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+}
+
+.container a {
+  text-decoration-line: underline;
+}
+
+.auth {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+
+.title {
+  font-size: 14pt;
+  color: red;
+  font-weight: bold;
+}
+
+.text {
+  font-size: 12pt;
+  color: black;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

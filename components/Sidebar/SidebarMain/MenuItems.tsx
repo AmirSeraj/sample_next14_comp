@@ -15,12 +15,7 @@ const MenuItems = (t: any) => {
           title: t("dashboard"),
           path: "/dashboard",
           icon: <MdDashboard />,
-        },
-        {
-          title: "Forms",
-          path: "/dashboard/forms",
-          icon: <MdDashboard />,
-        },
+        }
       ],
     },
   ];

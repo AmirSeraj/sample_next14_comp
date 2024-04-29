@@ -215,6 +215,9 @@ export default async function Home({ params: { locale } }) {
     </TranslationsProvider>
   );
 }
+
+11.1. wrap TranslationsProvider iin whole project (layout).
+
 -----------------------------------
 12.in components/ExampleClientComponent.js
 

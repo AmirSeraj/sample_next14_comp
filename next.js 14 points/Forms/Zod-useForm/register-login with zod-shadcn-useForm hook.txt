@@ -212,23 +212,29 @@ const LoginFormServerSide = ({
             control={form.control}
             name="password"
             render={({ field }) => (
-              <FormItem className="relative">
+              <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={isPending}
-                    placeholder="******"
-                    type={showPassword ? "text" : "password"}
-                  />
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="******"
+                      type={showPassword ? "text" : "password"}
+                    />
+                    <span
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-7 bottom-2 cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <IoEye size={22} />
+                      ) : (
+                        <IoEyeOff size={22} />
+                      )}
+                    </span>
+                  </div>
                 </FormControl>
                 <FormMessage />
-                <span
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-7 bottom-2 cursor-pointer"
-                >
-                  {showPassword ? <IoEye size={22} /> : <IoEyeOff size={22} />}
-                </span>
               </FormItem>
             )}
           />
