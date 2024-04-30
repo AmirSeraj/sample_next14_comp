@@ -1,5 +1,7 @@
-1. npm i iron-session
+//this is in server side pages:
+https://www.youtube.com/watch?v=p_FiVGxyksI&t=467s
 
+1. npm i iron-session
 2.in main root create a lib folder: lib >> authConfig.ts
 2.1. in authConfig.ts:
 -----------------------------
@@ -56,8 +58,166 @@ const Navar = async () => {
   {session.isLoggedIn && <LogoutForm />}
 }
 -------------------
+create loginForm:
+
+<form action={login}>
+<input type="text" name="username" required placeholder="username" />
+<input type="password" name="password" required placeholder="password" />
+<button>login</button>
+</form>
+
+in actions >>> login function:
+i am using zod for forms
+-------------------------------------
+"use server";
+import { LoginSchema } from "@/schemas";
+import * as z from "zod";
+import { getSession } from "../getSession";
+import { LoggedInUser } from "./loggedInUser";
+import { redirect } from "next/navigation";
 
 
+//pay attention to .env file.
+/**PATH */
+const sanctum_path = process.env.NEXT_APP_URL + "sanctum/csrf-cookie";
+const login_path = process.env.NEXT_APP_URL + "api/auth/login";
+/**PATH */
+
+/**login */
+export const login: (values: z.infer<typeof LoginSchema>) => Promise<{
+  error: string | false;
+  success: string | false;
+  // isLoading: false;
+}> = async (values: z.infer<typeof LoginSchema>) => {
+  ///data validation
+  const validatedFields = LoginSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid Credentials!", success: false };
+  }
+
+  /**session */
+  const session = await getSession();
+
+  //destructuring data
+  const { password, email } = validatedFields.data;
+
+  try {
+    //CSRF Token
+    const csrf_response = await fetch(sanctum_path, {
+      method: "GET",
+      credentials: "include", //Include credentials for cross-origin requests
+    });
+
+    if (csrf_response.ok) {
+      try {
+        /**login user */
+        const res = await fetch(login_path, {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        });
+        const response = await res.json();
+        console.log("ress", response);
+
+        if (response.status === "error") {
+          return {
+            error: response.message,
+            success: false,
+          }
+        }
+
+        if (response.status === "success") {
+          session.token = response.token;
+          session.isLoggedIn = true;
+          await session.save();
+        }
+
+        if (session.isLoggedIn) {
+          await LoggedInUser(session.token);
+        }
+      } catch (error) {
+        console.log("error2", error);
+        return {
+          error: "Something Wrong, try again!",
+          success: false,
+        };
+      }
+    }
+  } catch (error) {
+    console.log("error", error);
+    return {
+      error: "Something Wrong, try again!",
+      success: false,
+    };
+  }
+  if (session.isLoggedIn) {
+    redirect("/dashboard");
+  }
+};
+------------------------------------
+
+export const logout = async () => {
+  const session = await getSession();
+  session.destroy();
+  redirect('/');
+}
+
+in components >>> LogoutForm:
+
+const LogoutForm = () => {
+  return(
+    <form action={logout}>
+    <button>logout</button>
+    </form>
+  )
+}
+
+//for handling errors you can use useFormState but if you use zod it si need.
+-----------------------------
+profile page
+import {redirect} from 'next/navigation';
+
+const ProfilePage = async () => {
+  const session = await getSession();
+
+  if(!session.isLoggedIn){
+    redirect('/')
+  }
+
+  return(
+    <div>
+    <p>Welcome, <b>{session.username}</b></p>
+
+    //for example you want to buy a Pro membership:
+    <form action={ChangePremium}>
+    <button>{session.isPro ? "Cancel" : "Buy"} Premium</button>
+    </form>
+    </div>
+  )
+}
+
+in actions:
+export const ChangePremium = async() => {
+  const session = getSession();
+
+  isPro = !session.isPro;
+  session.isPro = isPro;
+  await session.save();
+  revalidatePath('/profile') //we are not gonna redirect our user to anywhere, instead we are gonna refresh the data inside this page, it comes from next/cache
+}
+--------------------------------------------------
+
+protect our page:
+
+const session = await getSession();
+if(!session.isLoggedIn){
+  redirect('/');
+}
 
 
-
+for more information check this blog: https://github.com/vvo/iron-session/tree/main/examples/next/src
