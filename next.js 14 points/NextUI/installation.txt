@@ -1,0 +1,54 @@
+#individual-installation
+https://nextui.org/docs/guide/installation#individual-installation
+
+1.npm install @nextui-org/theme @nextui-org/system framer-motion
+
+2. for example button:
+npm install @nextui-org/button
+
+3. tailwind.config.js:
+// tailwind.config.js
+const {nextui} = require("@nextui-org/theme");
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    // single component styles
+    "./node_modules/@nextui-org/theme/dist/components/button.js",
+    // or you can use a glob pattern (multiple component styles)
+    './node_modules/@nextui-org/theme/dist/components/(button|snippet|code|input).js'
+  ],
+  theme: {
+    extend: {},
+  },
+  darkMode: "class",
+  plugins: [nextui()],
+};
+
+
+4. Provider Setup
+import * as React from "react";
+
+// 1. import `NextUIProvider` component
+import {NextUIProvider} from "@nextui-org/system";
+
+function App() {
+  // 2. Wrap NextUIProvider at the root of your app
+  return (
+    <NextUIProvider>
+      <YourApplication />
+    </NextUIProvider>
+  );
+}
+
+5. Use the Component
+import * as React from "react";
+import {Button} from "@nextui-org/button";
+
+function App() {
+  return (
+    <Button>Press me</Button>
+  );
+}
+
+see site top and follow steps for individual installation.
