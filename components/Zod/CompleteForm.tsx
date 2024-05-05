@@ -16,7 +16,7 @@ const CompleteForm = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
-  const [selectedImage, setSelectedImage] = useState<Blob | MediaSource>();
+  const [selectedImage, setSelectedImage] = useState<Blob | MediaSource | File | null>();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
