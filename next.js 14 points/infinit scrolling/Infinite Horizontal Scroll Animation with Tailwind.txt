@@ -1,0 +1,136 @@
+https://cruip.com/create-an-infinite-horizontal-scroll-animation-with-tailwind-css/
+
+infinite horizontal scrolling for bilingual (fa,en)
+
+1.in laoutSection (server-side):
+---------------
+import AnimatedText from "@/components/AnimatedText";
+import Link from "next/link";
+import Image from "next/image";
+import InfiniteHorizontalScroll from "./InfinitHorizontalScroll";
+
+const LayoutSection2 = ({ locale }: { locale: string }) => {
+  const data = [
+    {
+      img: "/images/landing/ether.png",
+      name: "Ethereum",
+      href: "https://ethereum.org",
+    },
+    {
+      img: "/images/landing/polygan.png",
+      name: "Polygan",
+      href: "https://polygan.org",
+    },
+    {
+      img: "/images/landing/python.png",
+      name: "Python",
+      href: "https://amir",
+    },
+    {
+      img: "/images/landing/solana.png",
+      name: "Solana",
+      href: "https://amir",
+    },
+    {
+      img: "/images/landing/solidity.png",
+      name: "Solidity",
+      href: "https://amir",
+    },
+  ];
+  return (
+    <div className="w-full h-[250px] py-[30px] px-[8.5%] flex flex-col justify-center items-center gap-8 text-lg bg-[#5A4A4A] bg-opacity-20">
+      <AnimatedText
+        text="Leveraging Cutting-Edge Technologies"
+        className="text-white text-center"
+      />
+      <InfiniteHorizontalScroll locale={locale}>
+        {data.map((item, index) => (
+          <li key={index}>
+            <Link
+              href={item.href}
+              className="flex items-center justify-center gap-2 text-white"
+            >
+              <Image alt={item.name} width={50} height={50} src={item.img} />
+              {item.name}
+            </Link>
+          </li>
+        ))}
+      </InfiniteHorizontalScroll>
+    </div>
+  );
+};
+
+export default LayoutSection2;
+
+---------------------------------------------------------------------
+2. create file InfiniteHorizontalScroll.tsx (client-side):
+---------
+
+"use client";
+import clsx from "clsx";
+import { useEffect, useRef } from "react";
+
+const InfiniteHorizontalScroll = ({ ///pass locale from page.jsx or main page....
+  children,
+  locale,
+}: {
+  children: React.ReactNode;
+  locale: string;
+}) => {
+  const logosRef = useRef<HTMLUListElement | null>(null);
+
+  useEffect(() => {
+    const logosContainer = logosRef.current;
+    if (!logosContainer) return;
+    const clone = logosContainer.cloneNode(true) as HTMLUListElement;
+    if (!logosContainer.parentNode) return;
+    logosContainer.parentNode.appendChild(clone);
+    clone.setAttribute("aria-hidden", "true");
+  }, []);
+
+  return (
+    <div className="w-full inline-flex flex-nowrap px-[8.5%] overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-200px),transparent_100%)]">
+      <ul
+        ref={logosRef}
+        className={clsx(
+          locale === "fa"
+            ? "animate-infinite-scroll-fa"
+            : "animate-infinite-scroll-en",
+          "flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none"
+        )}
+      >
+        {children}
+      </ul>
+    </div>
+  );
+};
+
+export default InfiniteHorizontalScroll;
+
+tailwind.config.css:
+
+const config = {
+  theme: {
+    
+    extend: {
+      keyframes: {
+        ........,
+        "infinite-scroll-fa": {
+          from: { transform: "translateX(0%)" },
+          to: { transform: "translateX(100%)" },
+        },
+        "infinite-scroll-en": {
+          from: { transform: "translateX(0%)" },
+          to: { transform: "translateX(-100%)" },
+        },
+      },
+      animation: {
+        .......,
+        "infinite-scroll-fa": "infinite-scroll-fa 25s linear infinite",
+        "infinite-scroll-en": "infinite-scroll-en 25s linear infinite",
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate"), nextui()],
+} satisfies Config;
+
