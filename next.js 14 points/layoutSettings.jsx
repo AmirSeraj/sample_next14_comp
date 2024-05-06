@@ -1,20 +1,11 @@
 // bilingual:
 
 // type jsx:
-
 import "./globals.css";
 import Footer from "@/components/Footer/Footer";
 import { ArticleProvider } from "@/context/ArticleContext";
 import clsx from "clsx";
 import { Roboto, Noto_Sans_Arabic } from "next/font/google";
-
-export const metadata = {
-  title: "Chalesh Soft",
-  description: "Chalesh Soft",
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
 
 const arabic = Noto_Sans_Arabic({
   subsets: ["arabic"],
@@ -49,7 +40,7 @@ export default function RootLayout({ children }) {
   );
 }
 
-
+// -----------------------------------------------------------------------------------
 
 
 ///type tsx:
@@ -69,8 +60,15 @@ export const metadata: Metadata = {
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },
   ],
+  // icons: {
+  //   icon: "/images/favicon.ico", //in public/images/favicon.ico
+  // },
+  // or -----
   icons: {
-    icon: "/images/favicon.ico",
+    icon:{
+      url: '/favicon.ico'
+    }
+    // icon: "/favicon.ico",
   },
 };
 
