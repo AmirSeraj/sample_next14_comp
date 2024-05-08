@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import LoginFormServerSide from "./LoginFormServerSide";
 import { login } from "@/lib/actions/auth/login";
 
-const LoginForm = () => {
+const LoginForm = ({ locale }: { locale: string }) => {
   const [error, setError] = useState<string | false | undefined>("");
   const [success, setSuccess] = useState<string | false | undefined>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -54,6 +54,7 @@ const LoginForm = () => {
         showPassword={showPassword}
         setShowPassword={setShowPassword}
         loading={loading}
+        locale={locale}
       />
     </CardWrapper>
   );

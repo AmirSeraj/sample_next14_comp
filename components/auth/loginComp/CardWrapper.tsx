@@ -1,8 +1,8 @@
-
 import { Card, CardContent, CardFooter, CardHeader } from "../../ui/card";
 import BackButton from "@/components/auth/BackButton";
 import Social from "@/components/auth/Social";
 import { Header } from "@/components/auth/Header";
+import Divider from "../Divider";
 
 interface CardWrapperProps {
   children: React.ReactNode;
@@ -28,15 +28,13 @@ export const CardWrapper = ({
       </CardHeader>
       <CardContent>{children}</CardContent>
       {showSocial && (
-        <CardFooter>
+        <CardFooter className="flex flex-col gap-2">
+          <Divider />
           <Social />
         </CardFooter>
       )}
       <CardFooter>
-        <BackButton
-          label={backButtonLabel}
-          href={backButtonHref}
-        />
+        <BackButton label={backButtonLabel ?? ''} href={backButtonHref ?? ''} />
       </CardFooter>
     </Card>
   );

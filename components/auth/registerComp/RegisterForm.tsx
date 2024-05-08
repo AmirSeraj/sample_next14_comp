@@ -8,12 +8,13 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { register } from "@/lib/actions/auth/register";
 
-const RegisterForm = () => {
+const RegisterForm = ({ locale }: { locale: string }) => {
   const [error, setError] = useState<string | false>("");
   const [success, setSuccess] = useState<string | false>("");
   const [isPending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -55,6 +56,7 @@ const RegisterForm = () => {
         setShowPassword={setShowPassword}
         showConfirmPassword={showConfirmPassword}
         setShowConfirmPassword={setShowConfirmPassword}
+        locale={locale}
       />
     </CardWrapper>
   );

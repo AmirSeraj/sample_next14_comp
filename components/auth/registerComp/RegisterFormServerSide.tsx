@@ -16,6 +16,7 @@ import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { IoEyeOff } from "react-icons/io5";
 import { IoEye } from "react-icons/io5";
+import clsx from "clsx";
 
 interface FormRegisterProps {
   email: string;
@@ -34,6 +35,7 @@ const RegisterFormServerSide = ({
   setShowPassword,
   showConfirmPassword,
   setShowConfirmPassword,
+  locale,
 }: {
   form: UseFormReturn<FormRegisterProps, any, undefined>;
   onSubmit: (values: z.infer<typeof RegisterSchema>) => void;
@@ -44,6 +46,7 @@ const RegisterFormServerSide = ({
   setShowPassword: React.Dispatch<React.SetStateAction<boolean>>;
   showConfirmPassword: boolean;
   setShowConfirmPassword: React.Dispatch<React.SetStateAction<boolean>>;
+  locale: string;
 }) => {
   return (
     <Form {...form}>
@@ -102,7 +105,10 @@ const RegisterFormServerSide = ({
                 <FormMessage />
                 <span
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-7 bottom-2 cursor-pointer"
+                  className={clsx(
+                    "absolute bottom-2 cursor-pointer",
+                    locale === "fa" ? "left-7" : "right-7"
+                  )}
                 >
                   {showPassword ? <IoEye size={22} /> : <IoEyeOff size={22} />}
                 </span>
@@ -126,9 +132,16 @@ const RegisterFormServerSide = ({
                 <FormMessage />
                 <span
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-7 bottom-2 cursor-pointer"
+                  className={clsx(
+                    "absolute bottom-2 cursor-pointer",
+                    locale === "fa" ? "left-7" : "right-7"
+                  )}
                 >
-                  {showConfirmPassword ? <IoEye size={22} /> : <IoEyeOff size={22} />}
+                  {showConfirmPassword ? (
+                    <IoEye size={22} />
+                  ) : (
+                    <IoEyeOff size={22} />
+                  )}
                 </span>
               </FormItem>
             )}

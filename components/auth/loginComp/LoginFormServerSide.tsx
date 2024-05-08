@@ -17,6 +17,7 @@ import { IoEyeOff } from "react-icons/io5";
 import { IoEye } from "react-icons/io5";
 import BackButton from "../BackButton";
 import Loading from "../../loading/Loading_1/page";
+import clsx from "clsx";
 
 interface FormLoginProps {
   email: string;
@@ -32,6 +33,7 @@ const LoginFormServerSide = ({
   showPassword,
   setShowPassword,
   loading,
+  locale,
 }: {
   form: UseFormReturn<FormLoginProps, any, undefined>;
   onSubmit: (values: z.infer<typeof LoginSchema>) => void;
@@ -41,6 +43,7 @@ const LoginFormServerSide = ({
   showPassword: boolean;
   setShowPassword: React.Dispatch<React.SetStateAction<boolean>>;
   loading: boolean;
+  locale: string;
 }) => {
   return (
     <Form {...form}>
@@ -83,7 +86,10 @@ const LoginFormServerSide = ({
                 <FormMessage />
                 <span
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-7 bottom-2 cursor-pointer"
+                  className={clsx(
+                    "absolute bottom-2 cursor-pointer",
+                    locale === "fa" ? "left-7" : "right-7"
+                  )}
                 >
                   {showPassword ? <IoEye size={22} /> : <IoEyeOff size={22} />}
                 </span>
